@@ -9,6 +9,7 @@ class Route
 
     public string $method;
     public string $path;
+
     public array $controllerParams = [];
     public ?array $controllerArgs = null;
 
@@ -23,7 +24,7 @@ class Route
 
         $pathParts = explode('/', trim($path, '/'));
         foreach($pathParts as $index => $part){
-            if ($part[0] !== '{' || $part[strlen($part) - 1] !== '}'){
+            if (!str_starts_with($part, '{') || !str_ends_with($part, '}')){
                 $pathParts[$index] = strtolower($part);
                 continue;
             }
@@ -37,12 +38,6 @@ class Route
     public function middleware(array $middleware): static
     {
         $this->middleware += [...$middleware];
-        return $this;
-    }
-
-    public function name(string $name): static
-    {
-        // TODO
         return $this;
     }
 

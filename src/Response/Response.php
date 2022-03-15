@@ -22,7 +22,6 @@ class Response
 
         if(!empty($this->type)) {
             header('Content-Type: ' . $this->type);
-            //header('Content-Length: ' . strlen($this->body)); // breaks the request sometimes
         }
 
         print($this->body);

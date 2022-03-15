@@ -1,84 +1,75 @@
 <?php namespace Leven\Router;
 
-final class Router
+use Leven\Router\Exception\{RouteNotFoundException, RouterException};
+use ReflectionClass, ReflectionException, ReflectionMethod;
+
+class Router
 {
 
-    private string $pathPrefix = '';
-    private array $globalMiddleware = [];
+    private array $store = [];
+    private array $reverseStore = [];
 
-    public function __construct(
-        private RouteRegistry $registry = new RouteRegistry
-    )
+
+    public function getStore(): array
     {
+        return $this->store;
     }
 
-    public function getRegistry(): RouteRegistry
+    /**
+     * @throws RouterException
+     */
+    public function addRoute(Route $route): void
     {
-        return $this->registry;
-    }
+        if(isset($this->store[$route->method][$route->path]))
+            throw new RouterException('route path already defined');
 
-    public function setPathPrefix(string $prefix): void
-    {
-        $this->pathPrefix = trim($prefix, '/');
-    }
+        $this->store[$route->method][$route->path] = $route;
 
-    public function addGlobalMiddleware(array $middleware): void
-    {
-        $this->globalMiddleware += [...$middleware];
-    }
-
-
-
-    public function group(string $path, callable $callback): void
-    {
-        if($this->pathPrefix)
-            $path = $this->pathPrefix . '/' . ltrim($path, '/');
-
-        $group = new Router($this->registry);
-        $group->setPathPrefix($path);
-
-        $callback($group);
-        unset($group);
+        if(!is_callable($route->controller))
+            $this->reverseStore[implode('::', $route->controller)] = $route;
     }
 
 
     /**
-     * @throws Exception\RouterException
+     * @throws RouteNotFoundException
      */
-    public function add(string $method, string $path, array|callable $controller): Route
+    public function match(Request $request): Route
     {
-        if($this->pathPrefix)
-            $path = $this->pathPrefix . '/' . ltrim($path, '/');
+        $method = strtoupper($request->method);
+        $path = trim(strtolower($request->path), '/');
 
-        $route = new Route(
-            method: $method,
-            path: $path,
-            controller: $controller,
-            middleware: $this->globalMiddleware
-        );
+        $pathParts = explode('/', $path);
+        $partsNum = count($pathParts);
+        for($i = 0 ; $i < 2 ** $partsNum ; $i++){
+            $bin = decbin($i);
+            $try = $pathParts;
+            $args = [];
 
-        $this->registry->addRoute($route);
-        return $route;
+            for($j = strlen($bin) - 1 ; $j >= 0 ; $j--)
+                if($bin[strlen($bin) - 1 - $j]) {
+                    $try[$partsNum - 1 - $j] = '$WILDCARD$';
+                    $args[] = $pathParts[$partsNum - 1 - $j];
+                }
+
+            $try = implode('/', $try);
+            if(isset($this->store[$method][$try])) {
+                $route = $this->store[$method][$try];
+                $route->controllerArgs = array_reverse($args);
+                return $route;
+            }
+        }
+
+        throw new RouteNotFoundException;
     }
 
-    public function get(string $path, array|callable $controller): Route
+    public function reverse(string|array $controller)
     {
-        return $this->add('GET', $path, $controller);
-    }
+        if(is_array($controller)) $controller = implode('::', $controller);
 
-    public function post(string $path, array|callable $controller): Route
-    {
-        return $this->add('POST', $path, $controller);
-    }
+        if(empty($this->reverseStore[$controller]))
+            throw new RouterException('controller not registered in router');
 
-    public function put(string $path, array|callable $controller): Route
-    {
-        return $this->add('PUT', $path, $controller);
-    }
-
-    public function delete(string $path, array|callable $controller): Route
-    {
-        return $this->add('DELETE', $path, $controller);
+        return $this->reverseStore[$controller];
     }
 
 }

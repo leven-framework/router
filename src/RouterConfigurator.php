@@ -40,7 +40,7 @@ final class RouterConfigurator
     /**
      * @throws Exception\RouterException
      */
-    public function add(string $method, string $path, array|callable $controller): Route
+    public function map(string $method, string $path, array|callable $controller): Route
     {
         if($this->pathPrefix)
             $path = $this->pathPrefix . '/' . ltrim($path, '/');
@@ -52,28 +52,28 @@ final class RouterConfigurator
             middleware: $this->globalMiddleware
         );
 
-        $this->router->addRoute($route);
+        $this->router->register($route);
         return $route;
     }
 
     public function get(string $path, array|callable $controller): Route
     {
-        return $this->add('GET', $path, $controller);
+        return $this->map('GET', $path, $controller);
     }
 
     public function post(string $path, array|callable $controller): Route
     {
-        return $this->add('POST', $path, $controller);
+        return $this->map('POST', $path, $controller);
     }
 
     public function put(string $path, array|callable $controller): Route
     {
-        return $this->add('PUT', $path, $controller);
+        return $this->map('PUT', $path, $controller);
     }
 
     public function delete(string $path, array|callable $controller): Route
     {
-        return $this->add('DELETE', $path, $controller);
+        return $this->map('DELETE', $path, $controller);
     }
 
 }

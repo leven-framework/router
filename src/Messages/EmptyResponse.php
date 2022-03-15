@@ -1,15 +1,16 @@
-<?php namespace Leven\Router\Response;
+<?php namespace Leven\Router\Messages;
 
 class EmptyResponse extends Response
 {
 
     public string $body = '';
-    public ?string $type = null;
+    public array $headers = [];
 
     public function __construct(
-        public int    $status = 204
+        public int $status = 204
     )
     {
+
     }
 
 }

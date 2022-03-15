@@ -2,6 +2,7 @@
 
 use Attribute;
 use Closure;
+use Leven\Router\Exception\RouterException;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class Route
@@ -10,8 +11,8 @@ class Route
     public string $method;
     public string $path;
 
-    public array $controllerParams = [];
-    public ?array $controllerArgs = null;
+    public array $paramNames = [];
+    public ?array $params = null;
 
     public function __construct(
         string $method,
@@ -30,7 +31,7 @@ class Route
             }
 
             $pathParts[$index] = '$WILDCARD$';
-            $this->controllerParams[] = trim($part, '{}');
+            $this->paramNames[] = trim($part, '{}');
         }
         $this->path = implode('/', $pathParts);
     }
@@ -39,6 +40,29 @@ class Route
     {
         $this->middleware += [...$middleware];
         return $this;
+    }
+
+    public function generatePath(array $params = []): string
+    {
+        $pathParts = explode('/', $this->path);
+        $paramIndex = 0;
+
+        foreach($pathParts as &$part)
+            if($part === '$WILDCARD$'){
+                $paramName = $this->paramNames[$paramIndex++];
+                if(empty($params[$paramName]))
+                    throw new RouterException("expected param $paramName for this route");
+                $part = $params[$paramName];
+            }
+
+        return '/' . implode('/', $pathParts);
+    }
+
+    public function __get(string $name): ?string
+    {
+        $paramIndex = array_search($name, $this->paramNames);
+        if($paramIndex === false) throw new RouterException("param $name doesn't exist in current route");
+        return $this->params[$paramIndex] ?? null;
     }
 
 }

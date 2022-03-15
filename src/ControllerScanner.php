@@ -25,7 +25,7 @@ class ControllerScanner
                 /** @var Route $route */
                 $route = $attribute->newInstance();
                 $route->controller = [$class, $method->name];
-                $this->router->addRoute($route);
+                $this->router->register($route);
             }
     }
 

@@ -1,4 +1,4 @@
-<?php namespace Leven\Router;
+<?php namespace Leven\Router\Messages;
 
 use Leven\Router\Exception\InvalidRequestException;
 
@@ -7,6 +7,8 @@ class Request
 
     public ?string $rawBody = null;
     public ?array $files = null;
+
+    public array $attributes = [];
 
     public function __construct(
         public string $method,
@@ -62,6 +64,17 @@ class Request
                 break;
 
         }
+    }
+
+    public function setAttribute(string $name, $value): static
+    {
+        $this->attributes[$name] = $value;
+        return $this;
+    }
+
+    public function getAttribute(string $name)
+    {
+        return $this->attributes[$name] ?? null;
     }
 
 }

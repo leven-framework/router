@@ -1,7 +1,7 @@
 <?php namespace Leven\Router;
 
 use Leven\Router\Exception\{RouteNotFoundException, RouterException};
-use ReflectionClass, ReflectionException, ReflectionMethod;
+use Leven\Router\Messages\Request;
 
 class Router
 {
@@ -10,15 +10,10 @@ class Router
     private array $reverseStore = [];
 
 
-    public function getStore(): array
-    {
-        return $this->store;
-    }
-
     /**
      * @throws RouterException
      */
-    public function addRoute(Route $route): void
+    public function register(Route $route): void
     {
         if(isset($this->store[$route->method][$route->path]))
             throw new RouterException('route path already defined');
@@ -28,7 +23,6 @@ class Router
         if(!is_callable($route->controller))
             $this->reverseStore[implode('::', $route->controller)] = $route;
     }
-
 
     /**
      * @throws RouteNotFoundException
@@ -43,18 +37,18 @@ class Router
         for($i = 0 ; $i < 2 ** $partsNum ; $i++){
             $bin = decbin($i);
             $try = $pathParts;
-            $args = [];
 
             for($j = strlen($bin) - 1 ; $j >= 0 ; $j--)
                 if($bin[strlen($bin) - 1 - $j]) {
                     $try[$partsNum - 1 - $j] = '$WILDCARD$';
-                    $args[] = $pathParts[$partsNum - 1 - $j];
+                    $params[] = $pathParts[$partsNum - 1 - $j];
                 }
 
             $try = implode('/', $try);
             if(isset($this->store[$method][$try])) {
+                /** @var Route $route */
                 $route = $this->store[$method][$try];
-                $route->controllerArgs = array_reverse($args);
+                $route->params = array_reverse($params ?? []);
                 return $route;
             }
         }
@@ -67,7 +61,7 @@ class Router
         if(is_array($controller)) $controller = implode('::', $controller);
 
         if(empty($this->reverseStore[$controller]))
-            throw new RouterException('controller not registered in router');
+            throw new RouterException("controller $controller not registered in router");
 
         return $this->reverseStore[$controller];
     }

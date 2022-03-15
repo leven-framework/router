@@ -1,20 +1,42 @@
 <?php namespace Leven\Router\Middleware;
 
-use Leven\Router\Request;
-use Leven\Router\Response\Response;
+use Leven\Router\Messages\Response;
 
 class OutputBufferingMiddleware
 {
 
-    public function before(): void
+    public function __invoke($next): Response
     {
-        ob_start();
+        return $this->replaceBody($next);
     }
 
-    public function after(): Response
+    public function replaceBody($next): Response
     {
+        ob_start();
+        $next(); // ignoring returned response
         $output = ob_get_clean();
+
         return new Response($output);
+    }
+
+    public function prependToBody($next): Response
+    {
+        ob_start();
+        $response = $next();
+        $output = ob_get_clean();
+
+        $response->body = $output . $response->body;
+        return $response;
+    }
+
+    public function appendToBody($next): Response
+    {
+        ob_start();
+        $response = $next();
+        $output = ob_get_clean();
+
+        $response->body .= $output;
+        return $response;
     }
 
 }

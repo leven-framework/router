@@ -8,20 +8,22 @@ use Leven\Router\Exception\RouterException;
 class Route
 {
 
-    public string $method;
+    public array $methods;
     public string $path;
 
     public array $paramNames = [];
     public ?array $params = null;
 
     public function __construct(
-        string $method,
-        string $path,
+        string|array              $methods,
+        string                    $path,
         public null|array|Closure $controller = null,
-        public array $middleware = []
+        public array              $middleware = []
     )
     {
-        $this->method = strtoupper($method);
+        if(is_string($methods)) $methods = [$methods];
+        foreach($methods as &$method) $method = strtoupper($method);
+        $this->methods = $methods;
 
         $pathParts = explode('/', trim($path, '/'));
         foreach($pathParts as $index => $part){

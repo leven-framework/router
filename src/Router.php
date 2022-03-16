@@ -15,10 +15,8 @@ class Router
      */
     public function register(Route $route): void
     {
-        if(isset($this->store[$route->method][$route->path]))
-            throw new RouterException('route path already defined');
-
-        $this->store[$route->method][$route->path] = $route;
+        foreach($route->methods as $method)
+            $this->store[$method][$route->path] = $route;
 
         if(!is_callable($route->controller))
             $this->reverseStore[implode('::', $route->controller)] = $route;

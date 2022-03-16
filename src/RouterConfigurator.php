@@ -40,13 +40,13 @@ final class RouterConfigurator
     /**
      * @throws Exception\RouterException
      */
-    public function map(string $method, string $path, array|callable $controller): Route
+    public function map(string|array $methods, string $path, array|callable $controller): Route
     {
         if($this->pathPrefix)
             $path = $this->pathPrefix . '/' . ltrim($path, '/');
 
         $route = new Route(
-            method: $method,
+            methods: $methods,
             path: $path,
             controller: $controller,
             middleware: $this->globalMiddleware

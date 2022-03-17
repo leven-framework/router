@@ -16,7 +16,7 @@ class Response
     public static function wrap(mixed $response): static
     {
         if($response instanceof Response) return $response;
-        return new Response((string) $response);
+        return new static((string) $response);
     }
 
     public function dispatch(): never

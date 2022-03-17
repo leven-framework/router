@@ -35,6 +35,7 @@ class Router
         for($i = 0 ; $i < 2 ** $partsNum ; $i++){
             $bin = decbin($i);
             $try = $pathParts;
+            $params = [];
 
             for($j = strlen($bin) - 1 ; $j >= 0 ; $j--)
                 if($bin[strlen($bin) - 1 - $j]) {
@@ -46,7 +47,7 @@ class Router
             if(isset($this->store[$method][$try])) {
                 /** @var Route $route */
                 $route = $this->store[$method][$try];
-                $route->params = array_reverse($params ?? []);
+                $route->paramValues = $params;
                 return $route;
             }
         }

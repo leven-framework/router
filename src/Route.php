@@ -12,7 +12,7 @@ class Route
     public string $path;
 
     public array $paramNames = [];
-    public ?array $params = null;
+    public ?array $paramValues = null;
 
     public function __construct(
         string|array              $methods,
@@ -60,11 +60,9 @@ class Route
         return '/' . implode('/', $pathParts);
     }
 
-    public function __get(string $name): ?string
+    public function getParams(): RouteParams
     {
-        $paramIndex = array_search($name, $this->paramNames);
-        if($paramIndex === false) throw new RouterException("param $name doesn't exist in current route");
-        return $this->params[$paramIndex] ?? null;
+        return new RouteParams($this->paramNames, $this->paramValues);
     }
 
 }

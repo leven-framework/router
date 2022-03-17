@@ -19,7 +19,7 @@ class RouteHandler
      */
     public function handle(Route $route): Response
     {
-        $this->injector->share($route);
+        $this->injector->share($route->getParams());
 
         $stack = [ new MiddlewareCallback($this->finalCallback(...)) ];
 

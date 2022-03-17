@@ -1,6 +1,7 @@
 <?php namespace Leven\Router;
 
 use Auryn\{ConfigException, InjectionException, Injector};
+use Leven\Router\Exception\RouterException;
 use Leven\Router\Messages\Response;
 
 class RouteHandler
@@ -20,14 +21,22 @@ class RouteHandler
     {
         $this->injector->share($route);
 
-        $callbacks = [];
-        foreach(array_reverse([...$route->middleware, $route->controller]) as $delegate){
-            array_unshift($callbacks, function() use ($callbacks, $delegate) {
-                $args = !empty($callbacks) ? [':next' => $callbacks[0]] : [];
-                return Response::wrap($this->injector->execute($delegate, $args));
-            });
-        }
-        return $callbacks[0]();
+        $stack = [ new MiddlewareCallback($this->finalCallback(...)) ];
+
+        foreach(array_reverse([...$route->middleware, $route->controller]) as $delegate)
+            array_unshift($stack, new MiddlewareCallback(
+                function() use ($stack, $delegate) {
+                    $this->injector->share($stack[0]);
+                    return $this->injector->execute($delegate);
+                }
+            ));
+
+        return $stack[0]();
+    }
+
+    private function finalCallback(){
+        $msg = 'no more callbacks in stack! you may only invoke MiddlewareCallback within middleware';
+        throw new RouterException($msg);
     }
 
 }

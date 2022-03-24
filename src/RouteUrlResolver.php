@@ -13,9 +13,15 @@ class RouteUrlResolver
     {
     }
 
-    public function __invoke(string|array $controller, array $params = [], array $query = []): string
+    public function __invoke(
+        string|array $controller,
+        array $params = [],
+        array $query = [],
+        bool $overrideGlobalQuery = false,
+    ): string
     {
-        $query = $this->globalQuery + $query;
+        if(!$overrideGlobalQuery) $query = $this->globalQuery + $query;
+
         return
             $this->prefix .
             $this->router->reverse($controller)->generatePath($params) .

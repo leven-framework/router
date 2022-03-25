@@ -8,7 +8,6 @@ class AttachmentResponse extends Response
     public array $headers = [
         'Content-Description' => 'File Transfer',
         'Content-Type' => 'application/octet-stream',
-        'Content-Disposition' => 'File Transfer',
         'Content-Transfer-Encoding' => 'binary',
     ];
 

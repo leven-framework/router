@@ -71,7 +71,7 @@ class Router
     /**
      * @throws RouteNotFoundException
      */
-    public function reverse(string|array $controller)
+    public function reverse(string|array $controller): Route
     {
         if(is_array($controller)) $controller = implode('::', $controller);
 

@@ -16,7 +16,6 @@ class ControllerScanner
 
     /**
      * @throws ReflectionException
-     * @throws RouterException
      */
     public function scanControllerClass(string $class): void
     {
@@ -31,7 +30,6 @@ class ControllerScanner
 
     /**
      * @throws ReflectionException
-     * @throws RouterException
      */
     public function scanControllerClasses(string ...$classes): void
     {

@@ -1,6 +1,6 @@
 <?php namespace Leven\Router;
 
-use Leven\Router\Exception\{RouteNotFoundException, RouterException};
+use Leven\Router\Exception\RouteNotFoundException;
 use Leven\Router\Messages\Request;
 
 class Router
@@ -9,17 +9,30 @@ class Router
     private array $store = [];
     private array $reverseStore = [];
 
+    private array $globalMiddleware = [];
 
-    /**
-     * @throws RouterException
-     */
+
+    public function addGlobalMiddleware(array|string|callable ...$middleware): void
+    {
+        $this->globalMiddleware += [...$middleware];
+    }
+
+
     public function register(Route $route): void
     {
+        $route->middlewarePrepend(...$this->globalMiddleware);
+
         foreach($route->methods as $method)
             $this->store[$method][$route->path] = $route;
 
-        if(!is_callable($route->controller))
-            $this->reverseStore[implode('::', $route->controller)] = $route;
+        if (is_array($route->controller)) {
+            $controllerString = implode('::', $route->controller);
+            $this->reverseStore[$controllerString] = $route;
+        } else
+        if (is_string($route->controller)) {
+            $this->reverseStore[$route->controller] = $route;
+            $this->reverseStore["$route->controller::__invoke"] = $route;
+        }
     }
 
     /**
@@ -55,12 +68,15 @@ class Router
         throw new RouteNotFoundException;
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     public function reverse(string|array $controller)
     {
         if(is_array($controller)) $controller = implode('::', $controller);
 
         if(empty($this->reverseStore[$controller]))
-            throw new RouterException("controller $controller not registered in router");
+            throw new RouteNotFoundException();
 
         return $this->reverseStore[$controller];
     }

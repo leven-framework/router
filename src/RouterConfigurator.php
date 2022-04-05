@@ -4,7 +4,7 @@ final class RouterConfigurator
 {
 
     private string $pathPrefix = '';
-    private array $globalMiddleware = [];
+    private array $middleware = [];
 
     public function __construct(
         private Router $router
@@ -17,9 +17,9 @@ final class RouterConfigurator
         $this->pathPrefix = trim($prefix, '/');
     }
 
-    public function addGlobalMiddleware(array $middleware): void
+    public function addMiddleware(array|string|callable ...$middleware): void
     {
-        $this->globalMiddleware += [...$middleware];
+        $this->middleware += [...$middleware];
     }
 
 
@@ -31,16 +31,14 @@ final class RouterConfigurator
 
         $group = new RouterConfigurator($this->router);
         $group->setPathPrefix($path);
+        $group->addMiddleware(...$this->middleware);
 
         $callback($group);
         unset($group);
     }
 
 
-    /**
-     * @throws Exception\RouterException
-     */
-    public function map(string|array $methods, string $path, array|callable $controller): Route
+    public function map(string|array $methods, string $path, string|array|callable $controller): Route
     {
         if($this->pathPrefix)
             $path = $this->pathPrefix . '/' . ltrim($path, '/');
@@ -49,29 +47,29 @@ final class RouterConfigurator
             methods: $methods,
             path: $path,
             controller: $controller,
-            middleware: $this->globalMiddleware
+            middleware: $this->middleware
         );
 
         $this->router->register($route);
         return $route;
     }
 
-    public function get(string $path, array|callable $controller): Route
+    public function get(string $path, string|array|callable $controller): Route
     {
         return $this->map('GET', $path, $controller);
     }
 
-    public function post(string $path, array|callable $controller): Route
+    public function post(string $path, string|array|callable $controller): Route
     {
         return $this->map('POST', $path, $controller);
     }
 
-    public function put(string $path, array|callable $controller): Route
+    public function put(string $path, string|array|callable $controller): Route
     {
         return $this->map('PUT', $path, $controller);
     }
 
-    public function delete(string $path, array|callable $controller): Route
+    public function delete(string $path, string|array|callable $controller): Route
     {
         return $this->map('DELETE', $path, $controller);
     }

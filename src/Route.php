@@ -1,8 +1,8 @@
 <?php namespace Leven\Router;
 
+use Leven\Router\Exception\RouterException;
 use Attribute;
 use Closure;
-use Leven\Router\Exception\RouterException;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class Route
@@ -15,10 +15,10 @@ class Route
     public ?array $paramValues = null;
 
     public function __construct(
-        string|array              $methods,
-        string                    $path,
-        public null|array|Closure $controller = null,
-        public array              $middleware = []
+        string|array                     $methods,
+        string                           $path,
+        public string|array|Closure|null $controller = null,
+        public array                     $middleware = []
     )
     {
         if(is_string($methods)) $methods = [$methods];
@@ -38,12 +38,43 @@ class Route
         $this->path = implode('/', $pathParts);
     }
 
-    public function middleware(array $middleware): static
+    /**
+     * @throws RouterException
+     */
+    public function middleware(array|string|callable ...$middleware): static
     {
-        $this->middleware += [...$middleware];
+        return $this->middlewareAppend(...$middleware);
+    }
+
+    /**
+     * @throws RouterException
+     */
+    public function middlewarePrepend(array|string|callable ...$middleware): static
+    {
+        foreach($middleware as $mid)
+            if(in_array($mid, $this->middleware))
+                throw new RouterException('exact middleware already added to this route');
+
+        $this->middleware = [...$middleware, ...$this->middleware];
         return $this;
     }
 
+    /**
+     * @throws RouterException
+     */
+    public function middlewareAppend(array|string|callable ...$middleware): static
+    {
+        foreach($middleware as $mid)
+            if(in_array($mid, $this->middleware))
+                throw new RouterException('exact middleware already added to this route');
+
+        $this->middleware = [...$this->middleware, ...$middleware];
+        return $this;
+    }
+
+    /**
+     * @throws RouterException
+     */
     public function generatePath(array $params = []): string
     {
         $pathParts = explode('/', $this->path);

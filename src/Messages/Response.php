@@ -25,8 +25,8 @@ class Response
     {
         http_response_code($this->status);
 
-        foreach($this->cookies as $cookie)
-            setcookie(...$cookie);
+        foreach($this->cookies as $name => $cookie)
+            setcookie($name, ...$cookie);
 
         foreach($this->headers as $header => $value)
             header("$header: $value");
@@ -56,7 +56,7 @@ class Response
     public function setCookie(
         string $name,
         ?string $value,
-        int $expire = 0,
+        int $expires = 0,
         string $path = '/',
         string $domain = '',
         bool $secure = false,
@@ -65,11 +65,11 @@ class Response
     {
         $this->cookies[$name] = [
             'value' => $value,
-            'expire' => $expire,
+            'expires_or_options' => $expires,
             'path' => $path,
             'domain' => $domain,
             'secure' => $secure,
-            'httpOnly' => $httpOnly,
+            'httponly' => $httpOnly,
         ];
         return $this;
     }

@@ -12,6 +12,6 @@ class RedirectResponse extends Response
         public int $status = 302,
     )
     {
-        $this->addHeader('Location', $url);
+        $this->setHeader('Location', $url);
     }
 }

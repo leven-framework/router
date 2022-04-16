@@ -3,6 +3,8 @@
 class Response
 {
 
+    public array $cookies = [];
+
     public function __construct(
         public string $body = '',
         public int    $status = 200,
@@ -23,6 +25,9 @@ class Response
     {
         http_response_code($this->status);
 
+        foreach($this->cookies as $cookie)
+            setcookie(...$cookie);
+
         foreach($this->headers as $header => $value)
             header("$header: $value");
 
@@ -30,15 +35,42 @@ class Response
         exit;
     }
 
-    public function addHeader(string $headerName, string $headerValue): static
+    public function setHeader(string $headerName, string $headerValue): static
     {
         $this->headers[$headerName] = $headerValue;
         return $this;
     }
 
-    public function addFilenameHeader(string $filename): static
+    public function setFilenameHeader(string $filename): static
     {
-        $this->addHeader('Content-Disposition', "inline; filename=\"$filename\"");
+        $this->setHeader('Content-Disposition', "inline; filename=\"$filename\"");
+        return $this;
+    }
+
+    public function setContentTypeHeader(string $contentType): static
+    {
+        $this->setHeader('Content-Type', $contentType);
+        return $this;
+    }
+
+    public function setCookie(
+        string $name,
+        string $value,
+        int $expire = 0,
+        string $path = '/',
+        string $domain = '',
+        bool $secure = false,
+        bool $httpOnly = false
+    ): static
+    {
+        $this->cookies[$name] = [
+            'value' => $value,
+            'expire' => $expire,
+            'path' => $path,
+            'domain' => $domain,
+            'secure' => $secure,
+            'httpOnly' => $httpOnly,
+        ];
         return $this;
     }
 

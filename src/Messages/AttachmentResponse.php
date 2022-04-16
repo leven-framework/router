@@ -17,8 +17,8 @@ class AttachmentResponse extends Response
         public int    $status = 200
     )
     {
-        $this->addHeader('Content-Disposition', "attachment; filename=\"$filename\"");
-        $this->addHeader('Content-Length', strlen($this->body));
+        $this->setHeader('Content-Disposition', "attachment; filename=\"$filename\"");
+        $this->setHeader('Content-Length', strlen($this->body));
     }
 
 }

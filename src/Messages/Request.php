@@ -15,7 +15,8 @@ class Request
         public string $path,
         public array $query = [],
         public ?array $body = null,
-        public array $headers = []
+        public array $cookies = [],
+        public array $headers = [],
     )
     {
     }
@@ -32,7 +33,8 @@ class Request
         $request = new static(
             method: $_SERVER['REQUEST_METHOD'],
             path: $uri['path'] ?? '',
-            headers: $_SERVER
+            cookies: $_COOKIE ?? [],
+            headers: $_SERVER,
         );
 
         parse_str($uri['query'] ?? '', $request->query);
@@ -42,8 +44,8 @@ class Request
         if(!empty($_POST)){
             $request->body = $_POST;
             $request->files = $_FILES;
-        }
-        else $request->decodeBody();
+        } else
+            $request->decodeBody();
 
         return $request;
     }

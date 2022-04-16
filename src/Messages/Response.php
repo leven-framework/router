@@ -55,7 +55,7 @@ class Response
 
     public function setCookie(
         string $name,
-        string $value,
+        ?string $value,
         int $expire = 0,
         string $path = '/',
         string $domain = '',

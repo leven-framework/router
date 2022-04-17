@@ -3,11 +3,11 @@
 final class RouterConfigurator
 {
 
-    private string $pathPrefix = '';
-    private array $middleware = [];
+    protected string $pathPrefix = '';
+    protected array $middleware = [];
 
     public function __construct(
-        private Router $router
+        protected Router $router
     )
     {
     }

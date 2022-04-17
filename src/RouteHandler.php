@@ -8,7 +8,7 @@ class RouteHandler
 {
 
     public function __construct(
-        public Injector $injector,
+        protected Injector $injector,
     )
     {
     }
@@ -34,7 +34,7 @@ class RouteHandler
         return $stack[0]();
     }
 
-    private function finalCallback(){
+    protected function finalCallback(){
         $msg = 'no more callbacks in stack! you may only invoke MiddlewareCallback within middleware';
         throw new RouterConfigurationException($msg);
     }

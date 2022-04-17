@@ -6,9 +6,9 @@ class RouteUrlResolver
 {
 
     public function __construct(
-        public Router $router,
-        public string $prefix = '/',
-        public array $globalQuery = [],
+        protected Router $router,
+        protected string $prefix = '/',
+        protected array $globalQuery = [],
     )
     {
     }

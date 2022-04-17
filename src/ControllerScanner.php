@@ -8,7 +8,7 @@ class ControllerScanner
 {
 
     public function __construct(
-        private Router $router
+        protected Router $router
     )
     {
     }

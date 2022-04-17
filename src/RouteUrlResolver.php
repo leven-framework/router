@@ -15,12 +15,12 @@ class RouteUrlResolver
 
     public function __invoke(
         string|array $controller,
-        array $params = [],
-        array $query = [],
-        bool $overrideGlobalQuery = false,
+        array        $params = [],
+        array        $query = [],
+        bool         $replaceGlobalQuery = false,
     ): string
     {
-        if(!$overrideGlobalQuery) $query = $this->globalQuery + $query;
+        if(!$replaceGlobalQuery) $query = $this->globalQuery + $query;
 
         return
             $this->prefix .

@@ -41,10 +41,11 @@ class Router
     public function match(Request $request): Route
     {
         $method = strtoupper($request->method);
-        $path = trim(strtolower($request->path), '/');
-
-        $pathParts = explode('/', $path);
+        $path = trim($request->path, '/');
+        $pathParts = explode('/', strtolower($path));
+        $pathPartsOriginal = explode('/', $path); // for pulling correctly capitalized params
         $partsNum = count($pathParts);
+
         for($i = 0 ; $i < 2 ** $partsNum ; $i++){
             $bin = decbin($i);
             $try = $pathParts;
@@ -53,7 +54,7 @@ class Router
             for($j = strlen($bin) - 1 ; $j >= 0 ; $j--)
                 if($bin[strlen($bin) - 1 - $j]) {
                     $try[$partsNum - 1 - $j] = '$WILDCARD$';
-                    $params[] = $pathParts[$partsNum - 1 - $j];
+                    $params[] = $pathPartsOriginal[$partsNum - 1 - $j];
                 }
 
             $try = implode('/', $try);

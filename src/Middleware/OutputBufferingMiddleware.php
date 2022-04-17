@@ -1,16 +1,17 @@
 <?php namespace Leven\Router\Middleware;
 
 use Leven\Router\Messages\Response;
+use Leven\Router\MiddlewareCallback;
 
 class OutputBufferingMiddleware
 {
 
-    public function __invoke($next): Response
+    public function __invoke(MiddlewareCallback $next): Response
     {
         return $this->replaceBody($next);
     }
 
-    public function replaceBody($next): Response
+    public function replaceBody(MiddlewareCallback $next): Response
     {
         ob_start();
         $next(); // ignoring returned response
@@ -19,7 +20,7 @@ class OutputBufferingMiddleware
         return new Response($output);
     }
 
-    public function prependToBody($next): Response
+    public function prependToBody(MiddlewareCallback $next): Response
     {
         ob_start();
         $response = $next();
@@ -29,7 +30,7 @@ class OutputBufferingMiddleware
         return $response;
     }
 
-    public function appendToBody($next): Response
+    public function appendToBody(MiddlewareCallback $next): Response
     {
         ob_start();
         $response = $next();

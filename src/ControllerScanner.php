@@ -2,7 +2,6 @@
 
 namespace Leven\Router;
 
-use Leven\Router\Exception\RouterException;
 use ReflectionClass, ReflectionMethod, ReflectionException;
 
 class ControllerScanner

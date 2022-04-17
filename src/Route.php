@@ -1,6 +1,6 @@
 <?php namespace Leven\Router;
 
-use Leven\Router\Exception\RouterException;
+use Leven\Router\Exception\RouterConfigurationException;
 use Attribute;
 use Closure;
 
@@ -39,7 +39,7 @@ class Route
     }
 
     /**
-     * @throws RouterException
+     * @throws RouterConfigurationException
      */
     public function middleware(array|string|callable ...$middleware): static
     {
@@ -47,33 +47,33 @@ class Route
     }
 
     /**
-     * @throws RouterException
+     * @throws RouterConfigurationException
      */
     public function middlewarePrepend(array|string|callable ...$middleware): static
     {
         foreach($middleware as $mid)
             if(in_array($mid, $this->middleware))
-                throw new RouterException('exact middleware already added to this route');
+                throw new RouterConfigurationException('exact middleware already added to this route');
 
         $this->middleware = [...$middleware, ...$this->middleware];
         return $this;
     }
 
     /**
-     * @throws RouterException
+     * @throws RouterConfigurationException
      */
     public function middlewareAppend(array|string|callable ...$middleware): static
     {
         foreach($middleware as $mid)
             if(in_array($mid, $this->middleware))
-                throw new RouterException('exact middleware already added to this route');
+                throw new RouterConfigurationException('exact middleware already added to this route');
 
         $this->middleware = [...$this->middleware, ...$middleware];
         return $this;
     }
 
     /**
-     * @throws RouterException
+     * @throws RouterConfigurationException
      */
     public function generatePath(array $params = []): string
     {
@@ -84,7 +84,7 @@ class Route
             if($part === '$WILDCARD$'){
                 $paramName = $this->paramNames[$paramIndex++];
                 if(empty($params[$paramName]))
-                    throw new RouterException("expected param $paramName for this route");
+                    throw new RouterConfigurationException("expected param $paramName for this route not provided");
                 $part = $params[$paramName];
             }
 

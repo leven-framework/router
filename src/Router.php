@@ -6,10 +6,10 @@ use Leven\Router\Messages\Request;
 class Router
 {
 
-    private array $store = [];
-    private array $reverseStore = [];
+    protected array $store = [];
+    protected array $reverseStore = [];
 
-    private array $globalMiddleware = [];
+    protected array $globalMiddleware = [];
 
 
     public function addGlobalMiddleware(array|string|callable ...$middleware): void
@@ -77,7 +77,7 @@ class Router
         if(is_array($controller)) $controller = implode('::', $controller);
 
         if(empty($this->reverseStore[$controller]))
-            throw new RouteNotFoundException();
+            throw new RouteNotFoundException;
 
         return $this->reverseStore[$controller];
     }

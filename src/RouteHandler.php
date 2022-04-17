@@ -1,7 +1,7 @@
 <?php namespace Leven\Router;
 
 use Auryn\{ConfigException, InjectionException, Injector};
-use Leven\Router\Exception\RouterException;
+use Leven\Router\Exception\RouterConfigurationException;
 use Leven\Router\Messages\Response;
 
 class RouteHandler
@@ -36,7 +36,7 @@ class RouteHandler
 
     private function finalCallback(){
         $msg = 'no more callbacks in stack! you may only invoke MiddlewareCallback within middleware';
-        throw new RouterException($msg);
+        throw new RouterConfigurationException($msg);
     }
 
 }

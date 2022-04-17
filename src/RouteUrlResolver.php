@@ -13,6 +13,10 @@ class RouteUrlResolver
     {
     }
 
+    /**
+     * @throws Exception\RouteNotFoundException
+     * @throws Exception\RouterConfigurationException
+     */
     public function __invoke(
         string|array $controller,
         array        $params = [],

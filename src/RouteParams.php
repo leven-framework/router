@@ -2,7 +2,7 @@
 
 namespace Leven\Router;
 
-use Leven\Router\Exception\RouterException;
+use Leven\Router\Exception\RouterConfigurationException;
 
 class RouteParams
 {
@@ -23,7 +23,7 @@ class RouteParams
     public function __get(string $name): string
     {
         if(!isset($this->params[$name]))
-            throw new RouterException("param $name not defined");
+            throw new RouterConfigurationException("param $name not defined");
 
         return $this->params[$name];
     }

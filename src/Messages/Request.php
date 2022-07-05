@@ -14,7 +14,7 @@ class Request
         public string $method,
         public string $path,
         public array $query = [],
-        public ?array $body = null,
+        public mixed $body = null,
         public array $cookies = [],
         public array $headers = [],
     )
@@ -44,8 +44,8 @@ class Request
         if(!empty($_POST)){
             $request->body = $_POST;
             $request->files = $_FILES;
-        } else
-            $request->decodeBody();
+        }
+        else $request->decodeBody();
 
         return $request;
     }

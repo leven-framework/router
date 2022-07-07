@@ -60,7 +60,7 @@ class Request
         switch( explode(';', $this->headers['CONTENT_TYPE'])[0] ){
 
             case 'application/json':
-                $this->body = json_decode($this->rawBody, true);
+                $this->body = json_decode($this->rawBody);
                 if($this->body === null && json_last_error() !== JSON_ERROR_NONE)
                     throw new InvalidRequestException('invalid json in request body');
                 break;
